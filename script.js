@@ -1,73 +1,42 @@
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+const { createClient } = supabase;
 
-// Secure Environment Variables (ONLY YOU SHOULD KNOW THESE)
-const SUPABASE_URL = 'https://pqikdkifazbtrunyhdbw.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxaWtka2lmYXpidHJ1bnloZGJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxOTI2OTcsImV4cCI6MjA1OTc2ODY5N30.EdLHhxNZ-Tk3UO9dxVmRG_TNe5MwDTXgKwIgrSVytqI';
+const supabaseUrl = 'https://your-supabase-url.supabase.co';
+const supabaseKey = 'your-supabase-key';
+const supabase = createClient(supabaseUrl, supabaseKey);
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+document.getElementById('submit-btn').addEventListener('click', async () => {
+    const password = document.getElementById('admin-password').value;
+    const playerName = document.getElementById('player-name').value;
+    const playerScore = document.getElementById('player-score').value;
 
-// Hidden secure password (admin only - edit in JS, not HTML)
-const securePassword = atob("Y3JpY2tldDEyMw=="); // "cricket123" base64 encoded
+    if (password === 'your-secure-password') {
+        const { data, error } = await supabase
+            .from('players')
+            .upsert([{ name: playerName, score: playerScore }]);
 
-async function fetchPlayers() {
-  const { data, error } = await supabase
-    .from('players')
-    .select('*')
-    .order('runs_scored', { ascending: false });
+        if (error) {
+            console.error('Error:', error);
+        } else {
+            loadPlayerStats();
+        }
+    } else {
+        alert('Incorrect password!');
+    }
+});
 
-  if (error) {
-    console.error('Error fetching:', error);
-    return;
-  }
+async function loadPlayerStats() {
+    const { data, error } = await supabase
+        .from('players')
+        .select('*');
 
-  const tableBody = document.getElementById('tableBody');
-  tableBody.innerHTML = '';
-  data.forEach(player => {
-    const row = `<tr>
-      <td>${player.name}</td>
-      <td>${player.matches_played}</td>
-      <td>${player.runs_scored}</td>
-      <td>${player.wickets_taken}</td>
-    </tr>`;
-    tableBody.innerHTML += row;
-  });
+    const tableBody = document.getElementById('stats-table').getElementsByTagName('tbody')[0];
+    tableBody.innerHTML = '';
+
+    data.forEach(player => {
+        const row = tableBody.insertRow();
+        row.insertCell(0).innerText = player.name;
+        row.insertCell(1).innerText = player.score;
+    });
 }
 
-window.addPlayer = async function () {
-  const password = document.getElementById('adminPassword').value;
-  if (password !== securePassword) {
-    alert("Invalid password.");
-    return;
-  }
-
-  const name = document.getElementById('playerName').value.trim();
-  const matches = parseInt(document.getElementById('matchesPlayed').value);
-  const runs = parseInt(document.getElementById('runsScored').value);
-  const wickets = parseInt(document.getElementById('wicketsTaken').value);
-
-  if (!name || isNaN(matches) || isNaN(runs) || isNaN(wickets)) {
-    alert("Please fill all fields correctly.");
-    return;
-  }
-
-  const { error } = await supabase
-    .from('players')
-    .upsert([
-      {
-        name,
-        matches_played: matches,
-        runs_scored: runs,
-        wickets_taken: wickets
-      }
-    ], { onConflict: ['name'] });
-
-  if (error) {
-    alert("Error updating stats.");
-    console.error(error);
-  } else {
-    alert("Player stats updated.");
-    fetchPlayers();
-  }
-};
-
-fetchPlayers();
+loadPlayerStats();
