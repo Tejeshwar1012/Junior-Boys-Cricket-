@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cricket Stats Manager</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script type="module" src="script.js" defer></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Cricket Player Stats Manager</h1>
+
+    <div class="admin-panel">
+      <h2>Admin Access</h2>
+      <input type="password" id="adminPassword" placeholder="Enter Admin Password"/>
+      <div class="form-group">
+        <input type="text" id="playerName" placeholder="Player Name" />
+        <input type="number" id="matchesPlayed" placeholder="Matches Played" />
+        <input type="number" id="runsScored" placeholder="Runs Scored" />
+        <input type="number" id="wicketsTaken" placeholder="Wickets Taken" />
+        <button onclick="addPlayer()">Add/Update Player</button>
+      </div>
+    </div>
+
+    <div class="stats-table">
+      <h2>All Players</h2>
+      <table id="playersTable">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Matches</th>
+            <th>Runs</th>
+            <th>Wickets</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <!-- Dynamic Rows from Supabase -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>
